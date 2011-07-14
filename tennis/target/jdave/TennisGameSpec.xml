@@ -1,9 +1,0 @@
-<specification name="TennisGameSpec" fqn="com.louhekon.examples.TennisGameSpec">
-  <contexts>
-    <context name="With any">
-      <behaviors>
-        <behavior name="Should fail" />
-      </behaviors>
-    </context>
-  </contexts>
-</specification>
