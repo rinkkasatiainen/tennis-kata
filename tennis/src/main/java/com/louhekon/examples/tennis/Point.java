@@ -2,7 +2,8 @@ package com.louhekon.examples.tennis;
 
 public enum Point {
 
-	A("A", "Advantage"),
+	Game("Game", "Game"),
+	A("A", "Advantage", Game),
 	Deuce("D", "Deuce", A),
 	Fourty(40, "fourty", A),
 	Thirty(30, "thirty", Fourty), 

@@ -8,16 +8,17 @@ import jdave.junit4.JDaveRunner;
 @RunWith(JDaveRunner.class)
 public class PlayerSpec extends Specification<Player> {
 
+	public static final Player PLAYER_1 = new Player("Kalle Kehveli");
+	public static final Player PLAYER_2 = new Player("Mikko Mallikas");
+
 	public class WithAny{
 		
-		private static final String PLAYER_NAME = "Kalle Kehveli";
-
 		public Player create(){
-			return new Player(PLAYER_NAME);
+			return new Player("Foo");
 		}
 		
 		public void ShouldHaveAName(){
-			specify(context.getName(), should.equal(PLAYER_NAME));
+			specify(context.getName(), should.equal("Foo"));
 		}
 	}
 }
