@@ -12,7 +12,7 @@ public class GameSpec extends Specification<Game> {
 	private final Player PLAYER_2 = new Player("Mikko Mallikas");
 	private final GameStatusObserver observer = mock(GameStatusObserver.class);
 
-	public class WithAny {
+	public class WithNewGame {
 
 		public Game create() {
 			return createGameContext();
