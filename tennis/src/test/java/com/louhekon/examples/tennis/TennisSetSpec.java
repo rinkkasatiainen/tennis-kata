@@ -12,7 +12,7 @@ public class TennisSetSpec extends Specification<TennisSet> {
 	private final Player PLAYER_1 = PlayerSpec.PLAYER_1; 
 	private final Player PLAYER_2 = PlayerSpec.PLAYER_2; 
 	private final SetStatusObserver observer = mock(SetStatusObserver.class);
-	private final Scorer scorer = new SetScorer(PLAYER_1, PLAYER_2);
+	private Scorer scorer;
 	private final GameFactory factory = mock(GameFactory.class);
 	private final Game game = mock(Game.class);
 	
@@ -26,6 +26,7 @@ public class TennisSetSpec extends Specification<TennisSet> {
 		}
 		
 		public TennisSet create(){
+			scorer = new SetScorer(PLAYER_1, PLAYER_2);
 			checking(new Expectations(){
 				{
 					one(factory).newGame();
@@ -41,7 +42,7 @@ public class TennisSetSpec extends Specification<TennisSet> {
 			//Empty - already tested in initialization
 		}
 		
-		public void shouldMarkPointToCorrectPlayer(){
+		public void shouldMarkPointToCorrectPlayerForTheCurrentGame(){
 			checking(new Expectations(){
 				{
 					one(game).addPointFor(PLAYER_1);
@@ -66,50 +67,46 @@ public class TennisSetSpec extends Specification<TennisSet> {
 	public class WhenWinningGames{
 		
 		public TennisSet create(){
+			scorer = mock(SetScorer.class);
 			return createTennisSet();
 		}
 		
-		public void shouldKnowWhenAGameIsWonByAPlayer(){
+		public void shouldCalculatePointsWhenWinningOne(){
+			checking(new Expectations(){
+				{
+					one(scorer).addPointFor(PLAYER_1);
+					one(scorer).wonBy(PLAYER_1);
+					will(returnValue(false));
+				}
+			});
 			context.gameBy(PLAYER_1);
-			specify(context.gamesFor(PLAYER_1), should.equal(1));
 		}
 		
-		public void shouldWinSetWith6_0(){
-			assertPlayerWinningAGame(PLAYER_1, 1);			
-			assertPlayerWinningAGame(PLAYER_1, 2);			
-			assertPlayerWinningAGame(PLAYER_1, 3);			
-			assertPlayerWinningAGame(PLAYER_1, 4);			
-			assertPlayerWinningAGame(PLAYER_1, 5);
-			
+		public void shouldInformObserversForWinningASet(){			
 			checking( new Expectations(){
 				{
+					one(scorer).addPointFor(PLAYER_1);
+					one(scorer).wonBy(PLAYER_1);
+					will(returnValue(true));
 					one(observer).setBy(PLAYER_1);
 				}
 			});
-			assertPlayerWinningAGame(PLAYER_1, 6);			
+			context.gameBy(PLAYER_1);
 		}
 
-		
-	}
-			
-	private void assertPlayerWinningAGame(Player player, int expectedGames) {
-		context.gameBy(player);
-		specify(context.gamesFor(player), should.equal(expectedGames));
-	}
+		private TennisSet createTennisSet() {
+			withGameFactory();
+			TennisSet set = new TennisSet(scorer, factory);
+			set.registerObserver(observer);
+			return set;
+		}
 
-	//TODO AS: Use real factory instead of a mock.
-	private TennisSet createTennisSet() {
-		withGameFactory();
-		TennisSet set = new TennisSet(scorer, factory);
-		set.registerObserver(observer);
-		return set;
-	}
-
-	private void withGameFactory() {
-		checking(new Expectations(){
-			{
-				allowing(factory).newGame();
-			}
-		});
+		private void withGameFactory() {
+			checking(new Expectations(){
+				{
+					allowing(factory).newGame();
+				}
+			});
+		}
 	}
 }

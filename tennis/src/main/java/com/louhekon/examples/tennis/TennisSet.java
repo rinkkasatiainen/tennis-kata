@@ -24,6 +24,7 @@ public class TennisSet implements GameStatusObserver {
 		scorer.addPointFor(player);
 		if (scorer.wonBy(player)) {
 			notifyObserversForWinningASet(player);
+			this.currentGame = null;
 		} else {
 			this.currentGame = factory.newGame();
 		}
