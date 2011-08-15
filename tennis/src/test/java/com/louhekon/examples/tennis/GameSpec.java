@@ -7,115 +7,74 @@ import org.jmock.Expectations;
 import org.junit.runner.RunWith;
 
 @RunWith(JDaveRunner.class)
-public class GameSpec extends Specification<Game> {
+public class GameSpec extends Specification<Game<?>> {
 	private final Player PLAYER_1 = new Player("Kalle Kehveli");
+	@SuppressWarnings("unused")
 	private final Player PLAYER_2 = new Player("Mikko Mallikas");
 	private final GameStatusObserver observer = mock(GameStatusObserver.class);
-
-	public class WithNewGame {
-
-		public Game create() {
-			return createGameContext();
-		}
-
-		public void shouldHaveZeroPointsWhenStarting() {
-			assertPlayerWithPoints(PLAYER_1, Point.Love);
-			assertPlayerWithPoints(PLAYER_2, Point.Love);
-		}
-
-		public void shouldHaveFifteenPointAfterFirstPoint() {
-			assertPlayerWinningAPoint(PLAYER_1, Point.Fifteen);
-			assertPlayerWithPoints(PLAYER_2, Point.Love);
-		}
-
-		public void shouldHaveCorrectPoints() {
-			assertPlayerWinningAPoint(PLAYER_1, Point.Fifteen);
-			assertPlayerWinningAPoint(PLAYER_1, Point.Thirty);
-			assertPlayerWinningAPoint(PLAYER_1, Point.Fourty);
-			assertPlayerWithPoints(PLAYER_2, Point.Love);
-		}
-	}
 	
-	public class withDeuce{
-		
-		public Game create(){
-			return contextWithDeuce();
-		}
+	public class WithAGame {
 
-		public void shouldHaveDeuce(){
-			assertPlayerWithPoints(PLAYER_1, Point.Deuce);
-			assertPlayerWithPoints(PLAYER_2, Point.Deuce);
-		}
+		private Scorer<Point> scorer = mock(GameScorer.class);
 		
-		public void shouldHaveAdvantageAndBackToDeuce(){
-			assertPlayerWinningAPoint(PLAYER_1, Point.A);
-			assertPlayerWithPoints(PLAYER_2, Point.Fourty);
-			context.addPointFor(PLAYER_2);
-			assertPlayerWithPoints(PLAYER_1, Point.Deuce);
-			assertPlayerWithPoints(PLAYER_2, Point.Deuce);
-		}
-
-		public void shouldWinFromAdvantage() {
-			assertPlayerWinningAPoint(PLAYER_1, Point.A);
-			
-			checking(new Expectations() {
-				{
-					one(observer).gameBy(PLAYER_1);
-				}
-			});
-			context.addPointFor(PLAYER_1);
-		}
-		
-		private Game contextWithDeuce() {
-			Game game = createGameContext();
-			game.addPointFor(PLAYER_1);
-			game.addPointFor(PLAYER_1);
-			game.addPointFor(PLAYER_1);
-			game.addPointFor(PLAYER_2);
-			game.addPointFor(PLAYER_2);
-			game.addPointFor(PLAYER_2);
+		public Game<Point> create() {
+			Game<Point> game = new Game<Point>(scorer);
+			game.registerObserver(observer);
 			return game;
 		}
-	}
 
-	public class WhenWinningGame {
-
-		public Game create() {
-			return createGameContext();
+		public void shouldCalculateScore(){
+			checking(new Expectations(){
+				{
+					one(scorer).addPointFor(PLAYER_1);
+					one(scorer).wonBy(PLAYER_1);
+					will(returnValue(false));
+				}
+			});
+			context.addPointFor(PLAYER_1);
 		}
-
-		public void shouldWinPoint() {
-			withFourtyPointsFor(PLAYER_1);
-			
+		
+		public void shouldInformObserversWhenWinningAPoint() {
 			checking(new Expectations() {
 				{
+					one(scorer).addPointFor(PLAYER_1);
+					one(scorer).wonBy(PLAYER_1);
+					will(returnValue(true));
 					one(observer).gameBy(PLAYER_1);
 				}
 			});
 			context.addPointFor(PLAYER_1);
 		}
-	}
 
-	private void assertPlayerWithPoints(Player player, Point point) {
-		specify(context.pointsFor(player), should.equal(point));
-	}
-
-	private void assertPlayerWinningAPoint(Player player, Point point) {
-		context.addPointFor(player);
-		specify(context.pointsFor(player), should.equal(point));
-	}
-
-	private void withFourtyPointsFor(Player player) {
-		int[] numbers = { 1, 2, 3 };
-		for (@SuppressWarnings("unused") int i : numbers) {
-			context.addPointFor(player);
+		public void shouldBeAbleToRetrievePoints(){
+			checking(new Expectations(){
+				{
+					one(scorer).pointsFor(PLAYER_1);
+					will(returnValue(Point.Love));
+				}
+			});
+			specify(context.pointsFor(PLAYER_1), should.equal(Point.Love));
 		}
-		specify(context.pointsFor(player), should.equal(Point.Fourty));
 	}
 
-	private Game createGameContext() {
-		Game game = new Game(PLAYER_1, PLAYER_2);
-		game.registerObserver(observer);
-		return game;
+	public class WithATieBreaker{
+		
+		private TieBreakScorer scorer = mock(TieBreakScorer.class);
+
+		public Game<Integer> create(){
+			Game<Integer> game = new Game<Integer>(scorer);
+			game.registerObserver(observer);
+			return game;
+		}
+		
+		public void shouldBeAbleToRetrievePoints(){
+			checking(new Expectations(){
+				{
+					one(scorer).pointsFor(PLAYER_1);
+					will(returnValue(5));
+				}
+			});
+			specify(context.pointsFor(PLAYER_1), should.equal(5));
+		}
 	}
 }

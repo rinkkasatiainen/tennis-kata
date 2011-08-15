@@ -12,13 +12,13 @@ public class TennisSetSpec extends Specification<TennisSet> {
 	private final Player PLAYER_1 = PlayerSpec.PLAYER_1;
 	private final Player PLAYER_2 = PlayerSpec.PLAYER_2;
 	private final SetStatusObserver observer = mock(SetStatusObserver.class);
-	private Scorer scorer;
+	private Scorer<Integer> scorer;
 	private final GameFactory factory = mock(GameFactory.class);
-	private final Game game = mock(Game.class);
+	private final Game<?> game = mock(Game.class);
 
 	public class WithAny {
 
-		private final Game gameNo2 = mock(Game.class, "AfterWinningOneGame");
+		private final Game<?> gameNo2 = mock(Game.class, "AfterWinningOneGame");
 
 		public TennisSet create() {
 			scorer = new SetScorer(PLAYER_1, PLAYER_2);
@@ -50,6 +50,16 @@ public class TennisSetSpec extends Specification<TennisSet> {
 			});
 			context.addPointFor(PLAYER_1);
 		}
+		
+		public void shouldCalculatePoints(){
+			checking(new Expectations(){
+				{
+					allowing(factory).newGame();
+				}
+			});
+			context.gameBy(PLAYER_1);
+			specify(context.gamesFor(PLAYER_1), should.equal(1));
+		}
 
 		public void shouldCreateNewGameWhenAPlayerWinsOne() {
 			expectGameToBeCreatedAfterWinningFirst(gameNo2);
@@ -58,7 +68,7 @@ public class TennisSetSpec extends Specification<TennisSet> {
 			context.addPointFor(PLAYER_1);
 		}
 
-		private void expectGameToBeCreatedAfterWinningFirst(final Game newGame) {
+		private void expectGameToBeCreatedAfterWinningFirst(final Game<?> newGame) {
 			checking(new Expectations() {
 				{
 					one(factory).newGame();
@@ -67,7 +77,7 @@ public class TennisSetSpec extends Specification<TennisSet> {
 			});
 		}
 
-		private void expectTheCurrentGameIs(final Game newGame) {
+		private void expectTheCurrentGameIs(final Game<?> newGame) {
 			checking(new Expectations() {
 				{
 					one(newGame).addPointFor(PLAYER_1);

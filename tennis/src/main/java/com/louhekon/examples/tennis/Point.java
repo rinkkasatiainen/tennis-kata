@@ -10,7 +10,9 @@ public enum Point {
 	Fifteen(15, "fifteen", Thirty), 
 	Love(0, "love", Fifteen);
 
+	@SuppressWarnings("unused")
 	private final String score;
+	@SuppressWarnings("unused")
 	private final String name;
 	private final Point nextInChain;
 
@@ -32,14 +34,6 @@ public enum Point {
 		this.name = name;
 	}
 
-	public static Point forName(String name) {
-		for (Point point : Point.values()) {
-			if (point.name.equals(name.toLowerCase()))
-				return point;
-		}
-		throw new java.lang.IllegalArgumentException("No point for name: " + name);
-	}
-	
 	public Point nextPoint(){
 		return this.nextInChain;
 	}

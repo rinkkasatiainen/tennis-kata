@@ -3,7 +3,7 @@ package com.louhekon.examples.tennis;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SetScorer implements Scorer {
+public class SetScorer implements Scorer<Integer> {
 
 	private Map<Player, Integer> games = new HashMap<Player, Integer>();
 
@@ -16,7 +16,7 @@ public class SetScorer implements Scorer {
 		games.put(player, games.get(player) + 1);
 	}
 
-	public int pointsFor(Player player) {
+	public Integer pointsFor(Player player) {
 		return games.get(player);
 	}
 
