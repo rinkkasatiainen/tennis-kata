@@ -16,7 +16,7 @@ public class TennisMatchSpec extends Specification<TennisMatch> {
 	public class WithANewGame {
 
 		public TennisMatch create() {
-			return new TennisMatch(new MatchScorer(PLAYER_1, PLAYER_2));
+			return new TennisMatch(new MatchScorer(PLAYER_1, PLAYER_2, Rule.BestOf.Three));
 		}
 
 		public void shouldStartWithZeroPoints(){
@@ -40,5 +40,5 @@ public class TennisMatchSpec extends Specification<TennisMatch> {
 			});
 			context.setBy(PLAYER_1);
 		}
-	}		
+	}	
 }
