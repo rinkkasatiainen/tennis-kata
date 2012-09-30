@@ -1,3 +1,4 @@
 surefire
 target/*
 .settings/*
+.idea
